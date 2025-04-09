@@ -294,6 +294,7 @@ def main(tag="0"):
 
     # teeth boundary segmentation model
     weight_ckpt = r".\seg\weights\weights-teeth-boundary-model.h5"
+    weight_ckpt = Path(weight_ckpt)
     model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
     model.load_weights(weight_ckpt)
 
