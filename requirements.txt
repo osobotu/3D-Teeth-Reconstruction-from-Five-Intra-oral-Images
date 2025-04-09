@@ -13,6 +13,6 @@ scikit-optimize
 scipy
 Shapely
 tensorflow-addons
-tensorflow-gpu
+tensorflow-gpu==2.6.0
 trimesh
 
