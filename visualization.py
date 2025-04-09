@@ -166,5 +166,5 @@ def main(tag="0"):
 
 
 if __name__ == "__main__":
-    # main(tag="0")
-    main(tag="1")
+    main(tag="0")
+    # main(tag="1")
