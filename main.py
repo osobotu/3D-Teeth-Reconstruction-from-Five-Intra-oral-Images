@@ -22,7 +22,7 @@ from seg.seg_model import ASPP_UNet
 from seg.utils import predict_teeth_contour
 
 TEMP_DIR = r"./demo/_temp/"
-TEMP_DIR = Path(TEMP_DIR)
+TEMP_DIR = Path(TEMP_DIR).resolve()
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 NUM_CPUS = psutil.cpu_count(logical=False)
@@ -294,7 +294,7 @@ def main(tag="0"):
 
     # teeth boundary segmentation model
     weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
-    weight_ckpt = Path(weight_ckpt)
+    weight_ckpt = Path(weight_ckpt).resolve()
     model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
     model.load_weights(weight_ckpt)
 

@@ -8,7 +8,7 @@ from pathlib import Path
 
 LOW_MEMORY = False  # True: to enable train and evaluation on low memory machine
 ROOT_DIR = r"./seg/"
-ROOT_DIR = Path(ROOT_DIR)
+ROOT_DIR = Path(ROOT_DIR).resolve()
 TRAIN_PATH = os.path.join(ROOT_DIR, r"train/")
 VALID_PATH = os.path.join(ROOT_DIR, r"valid/")
 IMAGE_SUBDIR = "image"
