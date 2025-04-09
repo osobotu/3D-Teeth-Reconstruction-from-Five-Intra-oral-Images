@@ -231,12 +231,18 @@ LOWER_INDICES = [
 ]  # ignore wisdom teeth
 
 
-SSM_DIR = r"./ssm/eigValVec/"
-REGIS_PARAM_DIR = r"./ssm/cpdGpParams/"
-DEMO_H5_DIR = r"./demo/h5/"
-DEMO_MESH_DIR = r"./demo/mesh/"
-REF_MESH_DIR = r"./demo/ref_mesh/"
-VIS_DIR = r"./demo/visualization"
+SSM_DIR = r".\ssm\eigValVec\"
+REGIS_PARAM_DIR = r".\ssm\cpdGpParams\"
+DEMO_H5_DIR = r".\demo\h5\"
+DEMO_MESH_DIR = r".\demo\mesh\"
+REF_MESH_DIR = r".\demo\ref_mesh\"
+VIS_DIR = r".\demo\visualization"
+# SSM_DIR = r"./ssm/eigValVec/"
+# REGIS_PARAM_DIR = r"./ssm/cpdGpParams/"
+# DEMO_H5_DIR = r"./demo/h5/"
+# DEMO_MESH_DIR = r"./demo/mesh/"
+# REF_MESH_DIR = r"./demo/ref_mesh/"
+# VIS_DIR = r"./demo/visualization"
 
 SSM_DIR = Path(SSM_DIR)
 REGIS_PARAM_DIR = Path(REGIS_PARAM_DIR)
