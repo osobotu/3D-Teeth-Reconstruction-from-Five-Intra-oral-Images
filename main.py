@@ -11,6 +11,7 @@ import numpy as np
 import open3d as o3d
 import psutil
 import ray
+from pathlib import Path
 
 import pcd_mesh_utils as pm_util
 import recons_eval_metric as metric
@@ -21,6 +22,7 @@ from seg.seg_model import ASPP_UNet
 from seg.utils import predict_teeth_contour
 
 TEMP_DIR = r"./demo/_temp/"
+TEMP_DIR = Path(TEMP_DIR)
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 NUM_CPUS = psutil.cpu_count(logical=False)
