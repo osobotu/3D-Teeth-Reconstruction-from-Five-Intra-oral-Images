@@ -135,7 +135,7 @@ def meshProjection(visualizer, tag):
             img.shape[0],
             img.shape[1],
         )
-        mesh_img_file = os.path.join(VIS_DIR, f"mesh-tag={tag}-{phType}.png")
+        mesh_img_file = os.path.join(VIS_DIR, f"[new]-mesh-tag={tag}-{phType}.png")
         skimage.io.imsave(mesh_img_file, skimage.img_as_ubyte(mshImg))
 
         bkgrd = np.all(mshImg < 0.01, axis=-1)
@@ -145,7 +145,7 @@ def meshProjection(visualizer, tag):
             img, _teethRegion, np.clip(_alpha * mshImg + (1.0 - _alpha) * img, 0.0, 1.0)
         )
         output = img
-        output_img_file = os.path.join(VIS_DIR, f"overlay-tag={tag}-{phType}.png")
+        output_img_file = os.path.join(VIS_DIR, f"[new]-overlay-tag={tag}-{phType}.png")
         skimage.io.imsave(output_img_file, skimage.img_as_ubyte(output))
 
 
