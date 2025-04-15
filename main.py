@@ -272,19 +272,97 @@ def read_demo_mesh_vertices_by_FDI(mesh_dir, tag, FDIs):
     return mesh_vertices_by_FDI
 
 
+# def main(tag="0"):
+#     Mu, SqrtEigVals, Sigma = loadMuEigValSigma(SSM_DIR, numPC=NUM_PC)
+#     Mu_normals = EMOpt5Views.computePointNormals(Mu)
+
+#     transVecStd = 1.1463183505325343  # obtained by SSM
+#     rotVecStd = 0.13909168140778128  # obtained by SSM
+#     PoseCovMats = np.load(
+#         os.path.join(REGIS_PARAM_DIR, "PoseCovMats.npy")
+#     )  # Covariance matrix of tooth pose for each tooth, shape=(28,6,6)
+#     ScaleCovMat = np.load(
+#         os.path.join(REGIS_PARAM_DIR, "ScaleCovMat.npy")
+#     )  # Covariance matrix of scales for each tooth, shape=(28,28)
+
+#     tooth_exist_mask = TOOTH_EXIST_MASK[tag]
+#     LogFile = os.path.join(TEMP_DIR, "Tag={}.log".format(tag))
+#     if os.path.exists(LogFile):
+#         os.remove(LogFile)
+#     log = open(LogFile, "a", encoding="utf-8")
+#     sys.stdout = log
+
+#     # teeth boundary segmentation model
+#     weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
+#     weight_ckpt = Path(weight_ckpt).resolve()
+#     model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
+#     model.load_weights(weight_ckpt)
+
+#     # predcit teeth boundary in each photo
+#     edgeMasks = []
+#     for phtype in PHOTO_TYPES:
+#         imgfile = glob.glob(os.path.join(PHOTO_DIR, f"{tag}-{phtype.value}.png"))[0]
+#         edge_mask = predict_teeth_contour(
+#             model, imgfile, resized_width=RECONS_IMG_WIDTH
+#         )  # resize image to (800,~600)
+#         edgeMasks.append(edge_mask)
+#         # plt.imshow(edge_mask)
+#         # plt.show()
+
+#     # del model # to release memory
+
+#     mask_u, mask_l = np.split(tooth_exist_mask, 2)
+#     X_Ref_Upper = read_demo_mesh_vertices_by_FDI(
+#         mesh_dir=REF_MESH_DIR, tag=tag, FDIs=np.array(UPPER_INDICES)[mask_u]
+#     )
+#     X_Ref_Lower = read_demo_mesh_vertices_by_FDI(
+#         mesh_dir=REF_MESH_DIR, tag=tag, FDIs=np.array(LOWER_INDICES)[mask_l]
+#     )
+
+#     # run deformation-based 3d reconstruction
+#     emopt = EMOpt5Views(
+#         edgeMasks,
+#         PHOTO_TYPES,
+#         VISIBLE_MASKS,
+#         tooth_exist_mask,
+#         Mu,
+#         Mu_normals,
+#         SqrtEigVals,
+#         Sigma,
+#         PoseCovMats,
+#         ScaleCovMat,
+#         transVecStd,
+#         rotVecStd,
+#     )
+#     emopt = run_emopt(emopt)
+#     demoh5File = os.path.join(DEMO_H5_DIR, f"demo-tag={tag}.h5")
+#     emopt.saveDemo2H5(demoh5File)
+
+#     print("Run evaluation ...")
+#     evaluation(demoh5File, X_Ref_Upper, X_Ref_Lower)
+
+#     create_mesh_from_emopt_h5File(demoh5File, meshDir=DEMO_MESH_DIR, save_name=tag)
+
+#     log.close()
+
 def main(tag="0"):
+    print("Loading shape statistics...")
     Mu, SqrtEigVals, Sigma = loadMuEigValSigma(SSM_DIR, numPC=NUM_PC)
+    print("Computing point normals...")
     Mu_normals = EMOpt5Views.computePointNormals(Mu)
 
     transVecStd = 1.1463183505325343  # obtained by SSM
     rotVecStd = 0.13909168140778128  # obtained by SSM
+    print("Loading pose covariance matrices...")
     PoseCovMats = np.load(
         os.path.join(REGIS_PARAM_DIR, "PoseCovMats.npy")
-    )  # Covariance matrix of tooth pose for each tooth, shape=(28,6,6)
+    )
+    print("Loading scale covariance matrix...")
     ScaleCovMat = np.load(
         os.path.join(REGIS_PARAM_DIR, "ScaleCovMat.npy")
-    )  # Covariance matrix of scales for each tooth, shape=(28,28)
+    )
 
+    print("Preparing log file...")
     tooth_exist_mask = TOOTH_EXIST_MASK[tag]
     LogFile = os.path.join(TEMP_DIR, "Tag={}.log".format(tag))
     if os.path.exists(LogFile):
@@ -292,25 +370,23 @@ def main(tag="0"):
     log = open(LogFile, "a", encoding="utf-8")
     sys.stdout = log
 
-    # teeth boundary segmentation model
+    print("Loading segmentation model...")
     weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
     weight_ckpt = Path(weight_ckpt).resolve()
     model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
     model.load_weights(weight_ckpt)
 
-    # predcit teeth boundary in each photo
+    print("Predicting teeth boundaries...")
     edgeMasks = []
     for phtype in PHOTO_TYPES:
+        print(f"Processing photo type: {phtype}")
         imgfile = glob.glob(os.path.join(PHOTO_DIR, f"{tag}-{phtype.value}.png"))[0]
         edge_mask = predict_teeth_contour(
             model, imgfile, resized_width=RECONS_IMG_WIDTH
-        )  # resize image to (800,~600)
+        )
         edgeMasks.append(edge_mask)
-        # plt.imshow(edge_mask)
-        # plt.show()
 
-    # del model # to release memory
-
+    print("Reading reference meshes...")
     mask_u, mask_l = np.split(tooth_exist_mask, 2)
     X_Ref_Upper = read_demo_mesh_vertices_by_FDI(
         mesh_dir=REF_MESH_DIR, tag=tag, FDIs=np.array(UPPER_INDICES)[mask_u]
@@ -319,7 +395,7 @@ def main(tag="0"):
         mesh_dir=REF_MESH_DIR, tag=tag, FDIs=np.array(LOWER_INDICES)[mask_l]
     )
 
-    # run deformation-based 3d reconstruction
+    print("Initializing EM optimization for 3D reconstruction...")
     emopt = EMOpt5Views(
         edgeMasks,
         PHOTO_TYPES,
@@ -334,16 +410,22 @@ def main(tag="0"):
         transVecStd,
         rotVecStd,
     )
+    print("Running EM optimization...")
     emopt = run_emopt(emopt)
+
     demoh5File = os.path.join(DEMO_H5_DIR, f"demo-tag={tag}.h5")
+    print(f"Saving demo to H5 file: {demoh5File}")
     emopt.saveDemo2H5(demoh5File)
 
     print("Run evaluation ...")
     evaluation(demoh5File, X_Ref_Upper, X_Ref_Lower)
 
+    print("Creating mesh from EMOpt output...")
     create_mesh_from_emopt_h5File(demoh5File, meshDir=DEMO_MESH_DIR, save_name=tag)
 
+    print("Process complete.")
     log.close()
+
 
 
 if __name__ == "__main__":
