@@ -338,7 +338,7 @@ def main(tag="0"):
     demoh5File = os.path.join(DEMO_H5_DIR, f"demo-tag={tag}.h5")
     emopt.saveDemo2H5(demoh5File)
 
-    # evaluation(demoh5File, X_Ref_Upper, X_Ref_Lower)
+    evaluation(demoh5File, X_Ref_Upper, X_Ref_Lower)
 
     create_mesh_from_emopt_h5File(demoh5File, meshDir=DEMO_MESH_DIR, save_name=tag)
 
