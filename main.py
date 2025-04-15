@@ -349,4 +349,5 @@ def main(tag="0"):
 if __name__ == "__main__":
     ray.init(num_cpus=4, num_gpus=0)
     tag = "0"  # demo tag name: "0" or "1"
+    print("running main...")
     main(tag)
