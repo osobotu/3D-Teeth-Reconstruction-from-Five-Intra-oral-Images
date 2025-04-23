@@ -94,7 +94,8 @@ def DenseASPP_ResNet(shape=(512, 512, 3), filters=[64, 128, 256, 512, 1024], ker
         x = CascadeConv2D(x, f, conv_times, kern_size, leaky_rate=0.1, dila=1)
 
     x = LeakyConv2D(x, filters=1, k_size=1, leaky_rate=0.1, dila=1)
-    x = layers.Reshape(outputShape)(x)
+    print(x.shape)
+    # x = layers.Reshape(outputShape)(x)
     model = keras.Model(inp, x, name="DenseASPP-ResNet")
     return model
 
