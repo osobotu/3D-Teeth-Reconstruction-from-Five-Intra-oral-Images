@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     weight_ckpt = os.path.join(ROOT_DIR, "weights", r"model_weights.h5")
     # model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
-    model = DenseASPP_ResNet(IMG_SHAPE, kern_size=3)
+    model = DenseASPP_ResNet(IMG_SHAPE)
 
     # Train the model
     model = train(
