@@ -71,7 +71,7 @@ def DenseASPP_UNet(shape, kern_size=3, filters=[64, 128, 256, 512, 1024]):
     model = keras.Model(inp, x, name="DenseASPP-UNet")
     return model
 
-def DenseASPP_ResNet(shape=(512, 512, 3), filters=256):
+def DenseASPP_ResNet(shape=(512, 512, 3), filters=512):
     backbone = ResNet50(include_top=False, weights="imagenet", input_shape=shape)
     skip_connections = [backbone.get_layer(layer_name).output for layer_name in 
                         ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out', 'conv4_block6_out']]
