@@ -11,6 +11,7 @@ from seg.seg_const import IMG_SHAPE, LOW_MEMORY, ROOT_DIR, TRAIN_PATH, VALID_PAT
 from seg.seg_data import DataGenerator, get_data_filenames, read_data
 from seg.seg_loss import Dice_SSIM_loss
 from seg.seg_model import ASPP_UNet
+from seg.seg_model_test import DenseASPP_ResNet
 
 print = functools.partial(print, flush=True)
 
@@ -94,7 +95,8 @@ def train(
     model,
     weight_ckpt,
     batch_size=2,
-    epochs=50,
+    # epochs=50,
+    epochs=5,
     lr=0.0005,
     loss_func=Dice_SSIM_loss,
 ):
@@ -137,7 +139,8 @@ if __name__ == "__main__":
     sys.stdout = log
 
     weight_ckpt = os.path.join(ROOT_DIR, "weights", r"model_weights.h5")
-    model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
+    # model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
+    model = DenseASPP_ResNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
 
     # Train the model
     model = train(
