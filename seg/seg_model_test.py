@@ -125,19 +125,6 @@ def ResNetBlock(x, filters, kernel_size=3, strides=1, leaky_rate=0.1):
     
     return x
 
-def EncoderBlock(x, filters, blocks=2, strides=2, leaky_rate=0.1):
-    """
-    ResNet encoder block with multiple ResNet blocks
-    """
-    # First block with stride
-    x = ResNetBlock(x, filters, strides=strides, leaky_rate=leaky_rate)
-    
-    # Additional blocks
-    for _ in range(1, blocks):
-        x = ResNetBlock(x, filters, leaky_rate=leaky_rate)
-    
-    return x
-
 def DenseASPP(x, filters, d_rates=[3, 6, 12, 18, 24], leaky_rate=0.1):
     concat_feats = [x]
     for i, rate in enumerate(d_rates):
@@ -159,36 +146,57 @@ def DenseASPP_ResNet(shape, filters=[64, 128, 256, 512], aspp_filters=256):
     x = layers.Conv2D(64, 7, strides=2, padding='same')(input_tensor)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU(0.1)(x)
+    
+    # First skip connection before pooling
+    skip0 = x  # This will be at 1/2 resolution
+    
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
     
     # Store encoder outputs for skip connections
     skip_connections = []
+    skip_connections.append(x)  # This will be at 1/4 resolution
     
-    # ResNet encoder blocks
+    # Track current resolution level (1/4 after initial conv + pooling)
+    current_scale = 4
+    scales = [current_scale]
+    
+    # ResNet encoder blocks with explicit dimension tracking
     for i, f in enumerate(filters):
-        blocks = 2 if i < len(filters) - 1 else 3  # More blocks in the last stage
-        strides = 1 if i == 0 else 2  # No downsampling in the first block after initial conv
-        skip_connections.append(x)
-        x = EncoderBlock(x, f, blocks=blocks, strides=strides)
+        if i > 0:  # Downsample after first block
+            x = ResNetBlock(x, f, strides=2)
+            current_scale *= 2
+        else:  # No downsampling in first block
+            x = ResNetBlock(x, f, strides=1)
+            
+        x = ResNetBlock(x, f, strides=1)  # Additional processing at same resolution
+        
+        if i < len(filters) - 1:  # Don't store the last encoder output
+            skip_connections.append(x)
+            scales.append(current_scale)
     
     # Apply DenseASPP module
     x = DenseASPP(x, aspp_filters)
     
-    # Decoder with skip connections
-    for i in range(len(filters)-1, -1, -1):
-        upsampling_factor = 2
+    # Decoder with careful upsampling to match skip connections
+    for i in range(len(skip_connections) - 1, -1, -1):
+        # Calculate upsampling factor based on current scale vs target scale
+        x = layers.Conv2DTranspose(filters[min(i, len(filters)-1)], 2, strides=2, padding='same')(x)
         
-        # Upsampling
-        x = layers.Conv2DTranspose(filters[i], 2, strides=upsampling_factor, padding='same')(x)
-        
-        # Skip connection
+        # Now concatenate with the proper skip connection
         x = layers.concatenate([x, skip_connections[i]])
         
         # Refine features
-        x = ResNetBlock(x, filters[i])
+        x = ResNetBlock(x, filters[min(i, len(filters)-1)])
     
-    # Final upsampling to input resolution
-    x = layers.Conv2DTranspose(64, 2, strides=4, padding='same')(x)
+    # Final upsampling to match input resolution (from 1/4 to 1/2)
+    x = layers.Conv2DTranspose(64, 2, strides=2, padding='same')(x)
+    
+    # Concatenate with the earliest skip connection (before pooling)
+    x = layers.concatenate([x, skip0])
+    x = ResNetBlock(x, 64)
+    
+    # Final upsampling from 1/2 to full resolution
+    x = layers.Conv2DTranspose(32, 2, strides=2, padding='same')(x)
     x = layers.LeakyReLU(0.1)(x)
     
     # Output layer
