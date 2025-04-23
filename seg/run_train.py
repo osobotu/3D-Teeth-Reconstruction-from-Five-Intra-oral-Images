@@ -19,14 +19,36 @@ print = functools.partial(print, flush=True)
 ####################
 
 
+# def calc_recall_precision_F1score(y, py):
+#     _TP = np.count_nonzero(np.logical_and(y, py))
+#     _TN = np.count_nonzero(np.logical_and(1.0 - y, 1.0 - py))
+#     _FP = np.count_nonzero(np.logical_and(1.0 - y, py))
+#     _FN = np.count_nonzero(np.logical_and(y, 1.0 - py))
+#     _recall = _TP / (_TP + _FN)
+#     _precision = _TP / (_TP + _FP)
+#     _f1 = 2 * _TP / (2 * _TP + _FN + _FP)
+#     return _recall, _precision, _f1
+
 def calc_recall_precision_F1score(y, py):
+    """
+    Compute recall, precision, and F1 score with zero-division protection.
+    
+    Args:
+        y: Ground truth binary mask (1=positive, 0=negative)
+        py: Predicted binary mask (same shape as y)
+        
+    Returns:
+        Tuple of (recall, precision, F1) with 0.0 for undefined cases
+    """
     _TP = np.count_nonzero(np.logical_and(y, py))
-    _TN = np.count_nonzero(np.logical_and(1.0 - y, 1.0 - py))
     _FP = np.count_nonzero(np.logical_and(1.0 - y, py))
     _FN = np.count_nonzero(np.logical_and(y, 1.0 - py))
-    _recall = _TP / (_TP + _FN)
-    _precision = _TP / (_TP + _FP)
-    _f1 = 2 * _TP / (2 * _TP + _FN + _FP)
+    
+    # Safe calculations with zero-division handling
+    _recall = _TP / (_TP + _FN) if (_TP + _FN) > 0 else 0.0
+    _precision = _TP / (_TP + _FP) if (_TP + _FP) > 0 else 0.0
+    _f1 = (2 * _TP) / (2 * _TP + _FP + _FN) if (2 * _TP + _FP + _FN) > 0 else 0.0
+    
     return _recall, _precision, _f1
 
 
