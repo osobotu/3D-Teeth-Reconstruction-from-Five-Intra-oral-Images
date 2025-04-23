@@ -86,6 +86,6 @@ def DenseASPP_ResNet(shape=(512, 512, 3), filters=256):
         x = CascadeConv2D(x, filters, conv_times=2)
 
     x = layers.Conv2D(1, kernel_size=1, activation="sigmoid")(x)
-    x = layers.Reshape(shape[:2])(x)
+    # x = layers.Reshape(shape[:2])(x)
     model = keras.Model(inputs=backbone.input, outputs=x, name="DenseASPP-ResNet")
     return model
