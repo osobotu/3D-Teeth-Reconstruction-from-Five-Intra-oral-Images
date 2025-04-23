@@ -75,3 +75,4 @@ def ASPP_UNet(shape, kern_size=3, filters=[64, 128, 256, 512, 1024]):
     x = layers.Reshape(outputShape)(x)
     model = keras.Model(inp, x, name="ASPP-UNet")
     return model
+
