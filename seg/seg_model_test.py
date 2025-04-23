@@ -71,21 +71,52 @@ def DenseASPP_UNet(shape, kern_size=3, filters=[64, 128, 256, 512, 1024]):
     model = keras.Model(inp, x, name="DenseASPP-UNet")
     return model
 
-def DenseASPP_ResNet(shape=(512, 512, 3), filters=512):
-    backbone = ResNet50(include_top=False, weights="imagenet", input_shape=shape)
-    skip_connections = [backbone.get_layer(layer_name).output for layer_name in 
-                        ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out', 'conv4_block6_out']]
+# def DenseASPP_ResNet(shape=(512, 512, 3), filters=512):
+#     backbone = ResNet50(include_top=False, weights="imagenet", input_shape=shape)
+#     skip_connections = [backbone.get_layer(layer_name).output for layer_name in 
+#                         ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out', 'conv4_block6_out']]
 
-    x = backbone.output  # Deepest feature map
-    x = DenseASPP(x, filters)
+#     x = backbone.output  # Deepest feature map
+#     x = DenseASPP(x, filters)
 
-    # Decoder
-    for skip in reversed(skip_connections):
-        x = layers.Conv2DTranspose(filters, kernel_size=2, strides=2, padding="same")(x)
+#     # Decoder
+#     for skip in reversed(skip_connections):
+#         x = layers.Conv2DTranspose(filters, kernel_size=2, strides=2, padding="same")(x)
+#         x = layers.Concatenate()([x, skip])
+#         x = CascadeConv2D(x, filters, conv_times=2)
+
+#     x = layers.Conv2D(1, kernel_size=1, activation="sigmoid")(x)
+#     # x = layers.Reshape(shape[:2])(x)
+#     model = keras.Model(inputs=backbone.input, outputs=x, name="DenseASPP-ResNet")
+#     return model
+
+def DenseASPP_ResNet(shape=(512, 512, 3), kern_size=3, filters=[64, 128, 256, 512, 1024]):
+    outputShape = shape[:2]  # (512, 512)
+    inp = layers.Input(shape)
+    x = inp
+    encoders = []
+    conv_times = 2
+    depth = 0
+
+    # Use ResNet as encoder backbone and tap selected intermediate outputs
+    backbone = ResNet50(include_top=False, weights="imagenet", input_tensor=inp)
+    layer_names = ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out', 'conv4_block6_out']
+    features = [backbone.get_layer(name).output for name in layer_names]
+    x = backbone.output  # Deepest layer: conv5_block3_out
+
+    # Apply DenseASPP on deepest feature
+    x = DenseASPP(x, filters[-1])
+
+    # Match ResNet features with corresponding decoder filters
+    for f, skip in zip(reversed(filters[:-1]), reversed(features)):
+        x = layers.Conv2DTranspose(f, kernel_size=2, strides=2, padding="valid")(x)
         x = layers.Concatenate()([x, skip])
-        x = CascadeConv2D(x, filters, conv_times=2)
+        x = CascadeConv2D(x, f, conv_times, kern_size, leaky_rate=0.1, dila=1)
 
-    x = layers.Conv2D(1, kernel_size=1, activation="sigmoid")(x)
-    # x = layers.Reshape(shape[:2])(x)
-    model = keras.Model(inputs=backbone.input, outputs=x, name="DenseASPP-ResNet")
+    # Final layers
+    x = LeakyConv2D(x, filters=1, k_size=1, leaky_rate=0.1, dila=1)
+    x = layers.Reshape(outputShape)(x)
+    
+    model = keras.Model(inputs=inp, outputs=x, name="DenseASPP-ResNet")
     return model
+
