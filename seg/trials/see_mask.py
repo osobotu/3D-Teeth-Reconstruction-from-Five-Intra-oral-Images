@@ -48,7 +48,7 @@ def center_mask(mask):
     return centered
 
 # Load the grayscale mask
-mask_path = './7-d_jpeg.rf.b924dbf9bba2cff6d58fc15d96c03da2_mask.png'
+mask_path = './IMG_2473_jpeg.rf.a3877c8222c3b9f78d9e7980e877285b_mask.png'
 # mask_path = 'test_mask.png'
 mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
 print(mask.shape)
@@ -70,7 +70,7 @@ kernel = np.ones((3, 3), np.uint8)
 gradient = cv2.morphologyEx(binary_mask, cv2.MORPH_GRADIENT, kernel)
 
 # Step 3 (fallback): Use Canny edge detection if gradient is too faint
-if np.sum(gradient) < 10:
+if np.sum(gradient) < 2:
     print("Fallback to Canny edge detection")
     gradient = cv2.Canny(contrast_stretched, 50, 150)
 
