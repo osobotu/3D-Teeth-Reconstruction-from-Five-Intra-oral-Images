@@ -243,30 +243,61 @@ class EMOpt5Views(object):
     ######### Initialization functions ########
     ###########################################
 
+    # def initEdgeMaskNormals(self, vertices_xy, show=False):
+    #     M = len(vertices_xy)
+    #     pcd = o3d.geometry.PointCloud()
+    #     pcd.points = o3d.utility.Vector3dVector(
+    #         np.hstack([vertices_xy, 20 * np.random.rand(M, 1)])
+    #     )
+    #     pcd.estimate_normals()
+    #     pcd.orient_normals_consistent_tangent_plane(k=30)
+    #     normals_xy = np.asarray(pcd.normals)[:, :2]
+    #     pcd.normals = o3d.utility.Vector3dVector(
+    #         np.hstack([normals_xy, np.zeros((M, 1))])
+    #     )
+    #     pcd.normalize_normals()
+    #     if show == True:
+    #         o3d.visualization.draw_geometries(
+    #             [pcd],
+    #             window_name="image edge normals estimation",
+    #             width=800,
+    #             height=600,
+    #             left=50,
+    #             top=50,
+    #             point_show_normal=True,
+    #         )
+    #     return np.asarray(pcd.normals, dtype=np.float32)[:, :2]
+
     def initEdgeMaskNormals(self, vertices_xy, show=False):
         M = len(vertices_xy)
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(
             np.hstack([vertices_xy, 20 * np.random.rand(M, 1)])
         )
-        pcd.estimate_normals()
-        pcd.orient_normals_consistent_tangent_plane(k=30)
-        normals_xy = np.asarray(pcd.normals)[:, :2]
+        if M >= 3:  # ensure we have enough points for normal estimation
+            pcd.estimate_normals()
+            if M >= 30:
+                pcd.orient_normals_consistent_tangent_plane(k=30)
+            normals_xy = np.asarray(pcd.normals)[:, :2]
+        else:
+            print("[WARNING] Too few points to estimate normals. Returning zeros.")
+            normals_xy = np.zeros((M, 2))
+
         pcd.normals = o3d.utility.Vector3dVector(
             np.hstack([normals_xy, np.zeros((M, 1))])
         )
         pcd.normalize_normals()
-        if show == True:
+        
+        if show:
             o3d.visualization.draw_geometries(
                 [pcd],
                 window_name="image edge normals estimation",
                 width=800,
                 height=600,
-                left=50,
-                top=50,
                 point_show_normal=True,
             )
         return np.asarray(pcd.normals, dtype=np.float32)[:, :2]
+
 
     def initExtrinsicRotVecs(self, photoType):
         ph = photoType.value
