@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     # Train the model
     model = train(
-        model, weight_ckpt, batch_size=16, epochs=1, lr=0.0005, loss_func=Dice_SSIM_loss
+        model, weight_ckpt, batch_size=16, epochs=3, lr=0.0005, loss_func=Dice_SSIM_loss
     )
 
     model.load_weights(weight_ckpt)

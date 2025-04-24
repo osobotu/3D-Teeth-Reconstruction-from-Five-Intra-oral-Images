@@ -189,7 +189,8 @@ PHOTO_TYPES = [PHOTO.UPPER, PHOTO.LOWER, PHOTO.LEFT, PHOTO.RIGHT, PHOTO.FRONTAL]
 VISIBLE_MASKS = [MASK_UPPER, MASK_LOWER, MASK_LEFT, MASK_RIGHT, MASK_FRONTAL]
 RECONS_IMG_WIDTH = 800
 
-PHOTO_DIR = r"./seg/valid/image"
+# PHOTO_DIR = r"./seg/valid/image"
+PHOTO_DIR = r"./seg/valid/image_2"
 PHOTO_DIR = Path(PHOTO_DIR)
 
 NUM_PC = 10  # num of modes of deformation for each tooth used in reconstruction

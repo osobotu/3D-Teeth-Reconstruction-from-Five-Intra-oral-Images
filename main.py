@@ -352,6 +352,7 @@ def main(tag="0"):
     Mu, SqrtEigVals, Sigma = loadMuEigValSigma(SSM_DIR, numPC=NUM_PC)
     print("Computing point normals...")
     Mu_normals = EMOpt5Views.computePointNormals(Mu)
+    print(Mu_normals)
 
     transVecStd = 1.1463183505325343  # obtained by SSM
     rotVecStd = 0.13909168140778128  # obtained by SSM
@@ -374,8 +375,8 @@ def main(tag="0"):
 
     print("Loading segmentation model...")
     # weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
-    # weight_ckpt = r"./seg/weights/model_weights.h5"
-    weight_ckpt = r"/kaggle/input/denseaspp_resnet_v1/keras/default/1/model_weights.h5"
+    weight_ckpt = r"./seg/weights/model_weights.h5"
+    # weight_ckpt = r"/kaggle/input/denseaspp_resnet_v1/keras/default/1/model_weights.h5"
     weight_ckpt = Path(weight_ckpt).resolve()
     # model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
     model = DenseASPP_ResNet(IMG_SHAPE)
