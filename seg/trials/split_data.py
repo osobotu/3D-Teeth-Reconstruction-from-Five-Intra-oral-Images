@@ -24,5 +24,5 @@ def split_images_and_labels(source_folder):
     print(f"Split complete: images → {images_dir}, labels → {labels_dir}")
 
 # Example usage
-source = "./data/valid"
+source = "./data/new_data/valid"
 split_images_and_labels(source)

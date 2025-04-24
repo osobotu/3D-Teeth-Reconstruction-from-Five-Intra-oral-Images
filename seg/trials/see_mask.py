@@ -19,10 +19,41 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+def center_mask(mask):
+    """Center the foreground content of a binary mask"""
+    # Find all non-zero points
+    pts = np.column_stack(np.where(mask > 0))
+    
+    if len(pts) == 0:
+        return mask  # Return original if empty mask
+    
+    # Get bounding rect of non-zero region
+    x, y, w, h = cv2.boundingRect(pts)
+    
+    # Create blank centered mask
+    centered = np.zeros_like(mask)
+    center_x, center_y = mask.shape[1]//2, mask.shape[0]//2
+    region_center_x, region_center_y = x + w//2, y + h//2
+    
+    # Calculate translation
+    dx = center_x - region_center_x
+    dy = center_y - region_center_y
+    
+    # Translation matrix
+    M = np.float32([[1, 0, dx], [0, 1, dy]])
+    
+    # Apply translation
+    centered = cv2.warpAffine(mask, M, (mask.shape[1], mask.shape[0]))
+    
+    return centered
+
 # Load the grayscale mask
-mask_path = './data/train/label/image_82_mask.png'
+mask_path = './7-d_jpeg.rf.b924dbf9bba2cff6d58fc15d96c03da2_mask.png'
 # mask_path = 'test_mask.png'
 mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+print(mask.shape)
+
+mask = center_mask(mask)
 
 # Print unique pixel values to understand intensity distribution
 unique_vals = np.unique(mask)
@@ -58,6 +89,7 @@ plt.axis('off')
 
 plt.subplot(1, 3, 3)
 plt.imshow(gradient, cmap='gray')
+print(gradient.shape)
 plt.title("Boundary Mask")
 plt.axis('off')
 

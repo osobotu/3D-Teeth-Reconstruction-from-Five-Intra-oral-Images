@@ -94,9 +94,9 @@ def evaluate(model):
 def train(
     model,
     weight_ckpt,
-    batch_size=2,
+    batch_size=16,
     # epochs=50,
-    epochs=5,
+    epochs=1,
     lr=0.0005,
     loss_func=Dice_SSIM_loss,
 ):

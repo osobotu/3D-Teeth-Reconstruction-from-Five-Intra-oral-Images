@@ -45,6 +45,6 @@ def process_masks(input_folder, output_folder):
     print(f"✅ All masks processed and saved to: {output_folder}")
 
 # Example usage
-input_dir = "./data/train/label/"
-output_dir = "./data/train/boundary_masks"
+input_dir = "./data/new_data/valid/label/"
+output_dir = "./data/new_data/valid/boundary_masks"
 process_masks(input_dir, output_dir)
