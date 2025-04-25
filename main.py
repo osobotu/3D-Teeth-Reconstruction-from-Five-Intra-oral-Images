@@ -374,12 +374,12 @@ def main(tag="0"):
     sys.stdout = log
 
     print("Loading segmentation model...")
-    # weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
-    weight_ckpt = r"./seg/weights/model_weights.h5"
+    weight_ckpt = r"./seg/weights/weights-teeth-boundary-model.h5"
+    # weight_ckpt = r"./seg/weights/model_weights.h5"
     # weight_ckpt = r"/kaggle/input/denseaspp_resnet_v1/keras/default/1/model_weights.h5"
     weight_ckpt = Path(weight_ckpt).resolve()
-    # model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
-    model = DenseASPP_ResNet(IMG_SHAPE)
+    model = ASPP_UNet(IMG_SHAPE, filters=[16, 32, 64, 128, 256])
+    # model = DenseASPP_ResNet(IMG_SHAPE)
     model.load_weights(weight_ckpt)
 
     print("Predicting teeth boundaries...")
